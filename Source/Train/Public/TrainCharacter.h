@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "TrainCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class TRAIN_API ATrainCharacter : public ACharacter
@@ -27,6 +30,14 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* ArmComp;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext* DefaultMappingContext;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveAction;
+	
+	void Move(const FInputActionValue& EventValue);
 
 public:	
 	// Called every frame
