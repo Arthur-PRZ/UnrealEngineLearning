@@ -15,9 +15,12 @@ ATrainCharacter::ATrainCharacter()
 	
 	ArmComp = CreateDefaultSubobject<USpringArmComponent>("ArmComp");
 	ArmComp->SetupAttachment(RootComponent);
-
+	ArmComp->bUsePawnControlRotation = true;
+	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(ArmComp);
+	ArmComp->bUsePawnControlRotation = false;
+	
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +45,14 @@ void ATrainCharacter::Move(const FInputActionValue& EventValue)
 	AddMovementInput(GetActorRightVector(), MovementVector.X);
 }
 
+void ATrainCharacter::Look(const FInputActionValue& EventValue)
+{
+	FVector2D MovementVector = EventValue.Get<FVector2D>();
+	
+	AddControllerPitchInput(MovementVector.Y);
+	AddControllerYawInput(MovementVector.X);
+}
+
 // Called every frame
 void ATrainCharacter::Tick(float DeltaTime)
 {
@@ -57,6 +68,7 @@ void ATrainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATrainCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATrainCharacter::Look);
 	}
 }
 

@@ -36,8 +36,13 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* LookAction;
+
 	
 	void Move(const FInputActionValue& EventValue);
+	void Look(const FInputActionValue& EventValue);
 
 public:	
 	// Called every frame
