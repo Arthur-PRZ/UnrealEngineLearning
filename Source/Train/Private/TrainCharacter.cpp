@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ATrainCharacter::ATrainCharacter()
@@ -14,12 +15,15 @@ ATrainCharacter::ATrainCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	ArmComp = CreateDefaultSubobject<USpringArmComponent>("ArmComp");
-	ArmComp->SetupAttachment(RootComponent);
 	ArmComp->bUsePawnControlRotation = true; 
+	ArmComp->SetupAttachment(RootComponent);
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(ArmComp);
 	
+	bUseControllerRotationYaw = false;
+	
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 // Called when the game starts or when spawned
@@ -27,7 +31,7 @@ void ATrainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
@@ -35,6 +39,9 @@ void ATrainCharacter::BeginPlay()
 		}
 		PC->PlayerCameraManager->ViewPitchMin = -60.f;
 		PC->PlayerCameraManager->ViewPitchMax = 60.f;
+		
+		PC->bShowMouseCursor = false;
+		PC->SetInputMode(FInputModeGameOnly());
 	}
 }
 
@@ -42,20 +49,26 @@ void ATrainCharacter::Move(const FInputActionValue& EventValue)
 {
 	FVector2D MovementVector = EventValue.Get<FVector2D>();
 	
-	AddMovementInput(GetActorForwardVector(), MovementVector.Y);
-	AddMovementInput(GetActorRightVector(), MovementVector.X);
+	if (Controller != nullptr)
+	{
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
+		Rotation.Roll = 0;
+		
+		AddMovementInput(FRotationMatrix(Rotation).GetUnitAxis(EAxis::X), MovementVector.Y);
+		AddMovementInput(FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y), MovementVector.X);
+	}
 }
 
 void ATrainCharacter::Look(const FInputActionValue& EventValue)
 {
 	FVector2D MovementVector = EventValue.Get<FVector2D>();
 	
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.Y));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.X));
-
-	}
+	// if (GEngine)
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.Y));
+	// 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.X));
+	// }
 	AddControllerYawInput(MovementVector.X);
 	AddControllerPitchInput(MovementVector.Y * 0.5f);
 }
