@@ -15,6 +15,7 @@ ATrainCharacter::ATrainCharacter()
 	
 	ArmComp = CreateDefaultSubobject<USpringArmComponent>("ArmComp");
 	ArmComp->SetupAttachment(RootComponent);
+	ArmComp->bUsePawnControlRotation = true; 
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(ArmComp);
@@ -32,6 +33,8 @@ void ATrainCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+		PC->PlayerCameraManager->ViewPitchMin = -60.f;
+		PC->PlayerCameraManager->ViewPitchMax = 60.f;
 	}
 }
 
@@ -47,8 +50,14 @@ void ATrainCharacter::Look(const FInputActionValue& EventValue)
 {
 	FVector2D MovementVector = EventValue.Get<FVector2D>();
 	
-	AddControllerPitchInput(MovementVector.Y);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.Y));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.X));
+
+	}
 	AddControllerYawInput(MovementVector.X);
+	AddControllerPitchInput(MovementVector.Y * 0.5f);
 }
 
 // Called every frame
