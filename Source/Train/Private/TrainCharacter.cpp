@@ -15,11 +15,9 @@ ATrainCharacter::ATrainCharacter()
 	
 	ArmComp = CreateDefaultSubobject<USpringArmComponent>("ArmComp");
 	ArmComp->SetupAttachment(RootComponent);
-	ArmComp->bUsePawnControlRotation = true;
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(ArmComp);
-	ArmComp->bUsePawnControlRotation = false;
 	
 }
 
