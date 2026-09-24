@@ -15,6 +15,7 @@ AMagicProjectile::AMagicProjectile()
 	
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	RootComponent = SphereComp;
+	SphereComp->SetCollisionProfileName("Projectile");
 	
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
 	EffectComp->SetupAttachment(RootComponent);
@@ -23,6 +24,7 @@ AMagicProjectile::AMagicProjectile()
 	MovementComp->InitialSpeed = 2000.0f;
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->bInitialVelocityInLocalSpace = true;
+	MovementComp->ProjectileGravityScale = 0.5f;
 }
 
 // Called when the game starts or when spawned

@@ -55,6 +55,11 @@ void ATrainCharacter::PrimaryAttack()
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 }
 
+void ATrainCharacter::Jump()
+{
+	Super::Jump();
+}
+
 void ATrainCharacter::Move(const FInputActionValue& EventValue)
 {
 	FVector2D MovementVector = EventValue.Get<FVector2D>();
@@ -100,6 +105,7 @@ void ATrainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATrainCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATrainCharacter::Look);
 		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ATrainCharacter::PrimaryAttack);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ATrainCharacter::Jump);
 	}
 }
 
