@@ -17,6 +17,11 @@ class TRAIN_API ATrainCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+protected:
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> ProjectileClass;
+	
 public:
 	// Sets default values for this character's properties
 	ATrainCharacter();
@@ -40,7 +45,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* LookAction;
 
-	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* PrimaryAttackAction;
+
+	void PrimaryAttack();
 	void Move(const FInputActionValue& EventValue);
 	void Look(const FInputActionValue& EventValue);
 
