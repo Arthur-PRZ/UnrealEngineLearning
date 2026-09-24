@@ -47,7 +47,7 @@ void ATrainCharacter::BeginPlay()
 
 void ATrainCharacter::PrimaryAttack()
 {
-	FTransform SpawnTM(GetControlRotation(), GetActorLocation());
+	FTransform SpawnTM(GetControlRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
 	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
