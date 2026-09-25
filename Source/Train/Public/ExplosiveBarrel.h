@@ -6,12 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "ExplosiveBarrel.generated.h"
 
+class URadialForceComponent;
+
 UCLASS()
 class TRAIN_API AExplosiveBarrel : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
 	// Sets default values for this actor's properties
 	AExplosiveBarrel();
 
@@ -20,7 +22,13 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere)
-	UStaticMesh* Mesh;
+	UStaticMeshComponent* MeshComp;
+	
+	UPROPERTY(EditAnywhere)
+	URadialForceComponent* RadialForceComp;
+	
+	UFUNCTION()
+	void Explose(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
 	// Called every frame
