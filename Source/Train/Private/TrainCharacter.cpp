@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "TInteractionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -24,6 +25,8 @@ ATrainCharacter::ATrainCharacter()
 	bUseControllerRotationYaw = false;
 	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	InteractComp = CreateDefaultSubobject<UTInteractionComponent>("InteractComp");
 }
 
 // Called when the game starts or when spawned
@@ -88,6 +91,11 @@ void ATrainCharacter::Look(const FInputActionValue& EventValue)
 	AddControllerPitchInput(MovementVector.Y * 0.5f);
 }
 
+void ATrainCharacter::Interact()
+{
+	InteractComp->PrimaryInteract();
+}
+
 // Called every frame
 void ATrainCharacter::Tick(float DeltaTime)
 {
@@ -106,6 +114,7 @@ void ATrainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATrainCharacter::Look);
 		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ATrainCharacter::PrimaryAttack);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ATrainCharacter::Jump);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ATrainCharacter::Interact);
 	}
 }
 

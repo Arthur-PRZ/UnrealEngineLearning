@@ -11,6 +11,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
+class UTInteractionComponent;
 
 UCLASS()
 class TRAIN_API ATrainCharacter : public ACharacter
@@ -21,7 +22,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> ProjectileClass;
-	
+
 public:
 	// Sets default values for this character's properties
 	ATrainCharacter();
@@ -50,9 +51,16 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* JumpAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* InteractAction;
+	
+	UPROPERTY(VisibleAnywhere)
+	UTInteractionComponent* InteractComp;
 
 	void PrimaryAttack();
 	void Jump();
+	void Interact();
 	void Move(const FInputActionValue& EventValue);
 	void Look(const FInputActionValue& EventValue);
 
