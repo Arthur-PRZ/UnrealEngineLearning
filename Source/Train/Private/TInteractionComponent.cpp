@@ -45,7 +45,7 @@ void UTInteractionComponent::PrimaryInteract()
 	FRotator EyeRotation;
 	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-	FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
+	FVector End = EyeLocation + (EyeRotation.Vector() * 300);
 
 	// FHitResult Hit;
 	// GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, End, ObjectQueryParams);
@@ -60,16 +60,17 @@ void UTInteractionComponent::PrimaryInteract()
 	
 	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
 	
-	for (FHitResult Hit : Hits)
+	for (FHitResult &Hit : Hits)
 	{
 		if (AActor* HitActor = Hit.GetActor())
 		{
 			if (HitActor->Implements<UTGameplayInterface>())
 			{
+				DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 20,12, LineColor, false, 2.0f);
 				ITGameplayInterface::Execute_Interact(HitActor, Cast<APawn>(MyOwner));
+				break;
 			}
 		}
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 20,12, LineColor, false, 2.0f);
 	}
 	
 	DrawDebugLine(GetWorld(),EyeLocation, End, LineColor, false, 2.0f, 0.0f, 2.0f);

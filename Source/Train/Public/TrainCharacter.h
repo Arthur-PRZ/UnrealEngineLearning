@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
 class UTInteractionComponent;
+class UAnimeMontage;
 
 UCLASS()
 class TRAIN_API ATrainCharacter : public ACharacter
@@ -20,9 +21,14 @@ class TRAIN_API ATrainCharacter : public ACharacter
 
 protected:
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> ProjectileClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim;
 
+	FTimerHandle TimerHandle_PrimaryAttack;
+	
 public:
 	// Sets default values for this character's properties
 	ATrainCharacter();
@@ -59,6 +65,7 @@ protected:
 	UTInteractionComponent* InteractComp;
 
 	void PrimaryAttack();
+	void PrimaryAttack_TimeElapsed();
 	void Jump();
 	void Interact();
 	void Move(const FInputActionValue& EventValue);

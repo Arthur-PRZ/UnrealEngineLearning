@@ -50,6 +50,13 @@ void ATrainCharacter::BeginPlay()
 
 void ATrainCharacter::PrimaryAttack()
 {
+	PlayAnimMontage(AttackAnim);
+	
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ATrainCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+}
+
+void ATrainCharacter::PrimaryAttack_TimeElapsed()
+{
 	FTransform SpawnTM(GetControlRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
 	
 	FActorSpawnParameters SpawnParams;
