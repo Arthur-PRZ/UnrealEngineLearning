@@ -24,7 +24,7 @@ AMagicProjectile::AMagicProjectile()
 	MovementComp->InitialSpeed = 2000.0f;
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->bInitialVelocityInLocalSpace = true;
-	MovementComp->ProjectileGravityScale = 0.5f;
+	MovementComp->ProjectileGravityScale = 0.0f;
 }
 
 // Called when the game starts or when spawned

@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "TInteractionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ATrainCharacter::ATrainCharacter()
@@ -57,8 +58,19 @@ void ATrainCharacter::PrimaryAttack()
 
 void ATrainCharacter::PrimaryAttack_TimeElapsed()
 {
-	FTransform SpawnTM(GetControlRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
+	FHitResult Hit;
+	FVector Start = GetMesh()->GetSocketLocation("Muzzle_01");
+	FVector End = CameraComp->GetComponentLocation() + (CameraComp->GetForwardVector() * 10000.0f);
 	
+	FVector TargetPoint = End;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, CameraComp->GetComponentLocation(), End, ECC_Visibility))
+	{
+		TargetPoint = Hit.ImpactPoint;
+	}
+	
+	FRotator FinalRotation = UKismetMathLibrary::FindLookAtRotation(Start, TargetPoint);
+	FTransform SpawnTM(FinalRotation, Start);
+
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
@@ -92,7 +104,7 @@ void ATrainCharacter::Look(const FInputActionValue& EventValue)
 	
 	// if (GEngine)
 	// {
-	// 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.Y));
+	//  GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.Y));
 	// 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Ma variable: %f"),  MovementVector.X));
 	// }
 	AddControllerYawInput(MovementVector.X);
