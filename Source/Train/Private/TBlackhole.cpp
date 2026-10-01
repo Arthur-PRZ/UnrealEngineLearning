@@ -1,0 +1,87 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "TBlackhole.h"
+
+#include "AssetTypeCategories.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+
+// Sets default values
+ATBlackhole::ATBlackhole()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	
+	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
+	RootComponent = SphereComp;
+	
+	DestroySphereComp = CreateDefaultSubobject<USphereComponent>("DestroySphereComp");
+	DestroySphereComp->SetupAttachment(SphereComp);
+	
+	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	SphereComp->SetCollisionResponseToAllChannels(ECR_Overlap);
+	SphereComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	
+	RadialForceComp = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
+	RadialForceComp->SetupAttachment(SphereComp);
+	
+	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
+	
+	MovementComp->ProjectileGravityScale = 0.0f;
+	MovementComp->InitialSpeed = 1000.0f;
+	
+	ParticleComp = CreateDefaultSubobject<UParticleSystemComponent>("ParticleComp");
+	ParticleComp->SetupAttachment(SphereComp);
+}
+
+// Called when the game starts or when spawned
+void ATBlackhole::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+	
+	RadialForceComp->Radius = 800.0f;
+	RadialForceComp->ForceStrength = -3000000.0f;
+	RadialForceComp->Falloff = RIF_Linear;
+	RadialForceComp->AddCollisionChannelToAffect(ECC_PhysicsBody);
+	RadialForceComp->RemoveObjectTypeToAffect(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+	RadialForceComp->SetAutoActivate(true);
+	RadialForceComp->bIgnoreOwningActor = true;
+	
+	DestroySphereComp->OnComponentBeginOverlap.AddDynamic(this, &ATBlackhole::OnOverlap);
+	DestroySphereComp->SetCollisionResponseToAllChannels(ECR_Overlap);
+	DestroySphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	
+	GetWorldTimerManager().SetTimer(Handler_Destroy, this, &ATBlackhole::DestroyTimer, 5.0f);
+}
+
+void ATBlackhole::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Error, TEXT("1"));
+	if (!OtherActor->IsA(APawn::StaticClass()))
+	{
+		UE_LOG(LogTemp, Error, TEXT("2"));
+		if (OtherComp->IsSimulatingPhysics())
+		{
+			UE_LOG(LogTemp, Error, TEXT("3"));
+			OtherActor->Destroy();
+		}
+	}
+}
+
+// Called every frame
+void ATBlackhole::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+}
+
+void ATBlackhole::DestroyTimer()
+{
+	Destroy();
+}
+

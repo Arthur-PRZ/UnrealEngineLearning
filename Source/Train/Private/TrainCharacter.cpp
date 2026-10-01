@@ -58,24 +58,29 @@ void ATrainCharacter::PrimaryAttack()
 
 void ATrainCharacter::PrimaryAttack_TimeElapsed()
 {
-	FHitResult Hit;
-	FVector Start = GetMesh()->GetSocketLocation("Muzzle_01");
-	FVector End = CameraComp->GetComponentLocation() + (CameraComp->GetForwardVector() * 10000.0f);
-	
-	FVector TargetPoint = End;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, CameraComp->GetComponentLocation(), End, ECC_Visibility))
-	{
-		TargetPoint = Hit.ImpactPoint;
-	}
-	
-	FRotator FinalRotation = UKismetMathLibrary::FindLookAtRotation(Start, TargetPoint);
-	FTransform SpawnTM(FinalRotation, Start);
+	FTransform SpawnTM = GetSpawnTM();
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
 	
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+void ATrainCharacter::Blackhole()
+{
+	PlayAnimMontage(AttackAnim);
+	
+	GetWorldTimerManager().SetTimer(TimerHandle_Blackhole, this, &ATrainCharacter::Blackhole_TimeElapsed, 0.2f);
+}
+
+void ATrainCharacter::Blackhole_TimeElapsed()
+{
+	FTransform SpawnTM = GetSpawnTM();
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = this;
+	
+	GetWorld()->SpawnActor<AActor>(BlackholeClass, SpawnTM, SpawnParams);
 }
 
 void ATrainCharacter::Jump()
@@ -111,9 +116,29 @@ void ATrainCharacter::Look(const FInputActionValue& EventValue)
 	AddControllerPitchInput(MovementVector.Y * 0.5f);
 }
 
+
+
 void ATrainCharacter::Interact()
 {
 	InteractComp->PrimaryInteract();
+}
+
+FTransform ATrainCharacter::GetSpawnTM()
+{
+	FHitResult Hit;
+	FVector Start = GetMesh()->GetSocketLocation("Muzzle_01");
+	FVector End = CameraComp->GetComponentLocation() + (CameraComp->GetForwardVector() * 10000.0f);
+	
+	FVector TargetPoint = End;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, CameraComp->GetComponentLocation(), End, ECC_Visibility))
+	{
+		TargetPoint = Hit.ImpactPoint;
+	}
+	
+	FRotator FinalRotation = UKismetMathLibrary::FindLookAtRotation(Start, TargetPoint);
+	FTransform SpawnTM(FinalRotation, Start);
+	
+	return SpawnTM;
 }
 
 // Called every frame
@@ -135,6 +160,7 @@ void ATrainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ATrainCharacter::PrimaryAttack);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ATrainCharacter::Jump);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ATrainCharacter::Interact);
+		EnhancedInputComponent->BindAction(BlackholeAction, ETriggerEvent::Started, this, &ATrainCharacter::Blackhole);
 	}
 }
 

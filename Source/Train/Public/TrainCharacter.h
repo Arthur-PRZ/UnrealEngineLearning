@@ -25,9 +25,13 @@ protected:
 	TSubclassOf<AActor> ProjectileClass;
 	
 	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> BlackholeClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
+	FTimerHandle TimerHandle_Blackhole;
 	
 public:
 	// Sets default values for this character's properties
@@ -56,6 +60,9 @@ protected:
 	UInputAction* PrimaryAttackAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* BlackholeAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* JumpAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
@@ -66,11 +73,15 @@ protected:
 
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
+	void Blackhole();
+	void Blackhole_TimeElapsed();
 	void Jump();
 	void Interact();
 	void Move(const FInputActionValue& EventValue);
 	void Look(const FInputActionValue& EventValue);
 
+	FTransform GetSpawnTM();
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
