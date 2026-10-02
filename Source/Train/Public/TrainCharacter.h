@@ -28,10 +28,15 @@ protected:
 	TSubclassOf<AActor> BlackholeClass;
 	
 	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> DashClass;	
+	
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
 	FTimerHandle TimerHandle_Blackhole;
+	FTimerHandle Timerhandle_Dash;
+	// FTimerHandle Timerhandle_DashAnim;
 	
 public:
 	// Sets default values for this character's properties
@@ -68,6 +73,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractAction;
 	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* DashAction;
+	
 	UPROPERTY(VisibleAnywhere)
 	UTInteractionComponent* InteractComp;
 
@@ -77,9 +85,18 @@ protected:
 	void Blackhole_TimeElapsed();
 	void Jump();
 	void Interact();
+	void Dash();
+	void Dash_TimeElapsed();
+	
+	UFUNCTION()
+	void DashStop_TimeElapsed(ADash *Actor);
+	
+	UFUNCTION()
+	void DashTP_TimeElapsed(ADash* Actor);
+	
 	void Move(const FInputActionValue& EventValue);
 	void Look(const FInputActionValue& EventValue);
-
+	
 	FTransform GetSpawnTM();
 	
 public:	

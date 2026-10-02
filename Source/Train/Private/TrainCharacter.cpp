@@ -2,6 +2,8 @@
 
 
 #include "TrainCharacter.h"
+
+#include "Dash.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
@@ -83,6 +85,46 @@ void ATrainCharacter::Blackhole_TimeElapsed()
 	GetWorld()->SpawnActor<AActor>(BlackholeClass, SpawnTM, SpawnParams);
 }
 
+void ATrainCharacter::Dash()
+{
+	PlayAnimMontage(AttackAnim);
+	
+	GetWorldTimerManager().SetTimer(Timerhandle_Dash, this, &ATrainCharacter::Dash_TimeElapsed, 0.2f);
+}
+
+void ATrainCharacter::Dash_TimeElapsed()
+{
+	FTransform SpawnTM = GetSpawnTM();
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = this;
+	
+	ADash* SpawnedActor = GetWorld()->SpawnActor<ADash>(DashClass, SpawnTM, SpawnParams);
+	
+	// SpawnedActor->GetMovementComp()->OnProjectileStop
+	
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, "DashStop_TimeElapsed", SpawnedActor);
+	
+	GetWorldTimerManager().SetTimer(Timerhandle_Dash, TimerDelegate, 0.2f, false);
+}
+
+void ATrainCharacter::DashStop_TimeElapsed(ADash* Actor)
+{
+	Actor->StopMovementComp();
+	
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, "DashTP_TimeElapsed", Actor);
+	
+	Actor->ProcParticleComp->Activate();
+	GetWorldTimerManager().SetTimer(Timerhandle_Dash, TimerDelegate, 0.2f, false);
+}
+
+void ATrainCharacter::DashTP_TimeElapsed(ADash* Actor)
+{
+	SetActorLocation(Actor->GetActorLocation());
+	Actor->Destroy();
+}
+
 void ATrainCharacter::Jump()
 {
 	Super::Jump();
@@ -141,6 +183,8 @@ FTransform ATrainCharacter::GetSpawnTM()
 	return SpawnTM;
 }
 
+
+
 // Called every frame
 void ATrainCharacter::Tick(float DeltaTime)
 {
@@ -161,6 +205,7 @@ void ATrainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ATrainCharacter::Jump);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ATrainCharacter::Interact);
 		EnhancedInputComponent->BindAction(BlackholeAction, ETriggerEvent::Started, this, &ATrainCharacter::Blackhole);
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ATrainCharacter::Dash);
 	}
 }
 

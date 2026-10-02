@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Projectile.h"
 #include "GameFramework/Actor.h"
 #include "TBlackhole.generated.h"
 
@@ -12,7 +13,7 @@ class URadialForceComponent;
 class UParticleSystemComponent;
 
 UCLASS()
-class TRAIN_API ATBlackhole : public AActor
+class TRAIN_API ATBlackhole : public AProjectile
 {
 	GENERATED_BODY()
 	
@@ -23,22 +24,12 @@ public:
 protected:
 	
 	UPROPERTY(VisibleAnywhere)
-	USphereComponent* SphereComp;
-	
-	UPROPERTY(VisibleAnywhere)
 	USphereComponent* DestroySphereComp;
-	
-	UPROPERTY(VisibleAnywhere)
-	UProjectileMovementComponent* MovementComp;
 	
 	UPROPERTY(VisibleAnywhere)
 	URadialForceComponent* RadialForceComp;
 	
-	UPROPERTY(VisibleAnywhere)
-	UParticleSystemComponent* ParticleComp;
-	
 	FTimerHandle Handler_Destroy;
-	
 	
 	void DestroyTimer();
 	// Called when the game starts or when spawned

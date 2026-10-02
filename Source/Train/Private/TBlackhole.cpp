@@ -15,13 +15,9 @@ ATBlackhole::ATBlackhole()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
-	RootComponent = SphereComp;
-	
-	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Overlap);
 	SphereComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
 	
 	DestroySphereComp = CreateDefaultSubobject<USphereComponent>("DestroySphereComp");
 	DestroySphereComp->SetupAttachment(SphereComp);
@@ -41,13 +37,10 @@ ATBlackhole::ATBlackhole()
 	RadialForceComp->SetAutoActivate(true);
 	RadialForceComp->bIgnoreOwningActor = true;
 	
-	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
 	
 	MovementComp->ProjectileGravityScale = 0.0f;
 	MovementComp->InitialSpeed = 1000.0f;
 	
-	ParticleComp = CreateDefaultSubobject<UParticleSystemComponent>("ParticleComp");
-	ParticleComp->SetupAttachment(SphereComp);
 }
 
 // Called when the game starts or when spawned
@@ -55,6 +48,7 @@ void ATBlackhole::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
 	GetWorldTimerManager().SetTimer(Handler_Destroy, this, &ATBlackhole::DestroyTimer, 5.0f);
 }
 
