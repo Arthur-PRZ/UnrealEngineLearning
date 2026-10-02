@@ -18,15 +18,28 @@ ATBlackhole::ATBlackhole()
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	RootComponent = SphereComp;
 	
-	DestroySphereComp = CreateDefaultSubobject<USphereComponent>("DestroySphereComp");
-	DestroySphereComp->SetupAttachment(SphereComp);
-	
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Overlap);
 	SphereComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+	
+	DestroySphereComp = CreateDefaultSubobject<USphereComponent>("DestroySphereComp");
+	DestroySphereComp->SetupAttachment(SphereComp);
+	
+	DestroySphereComp->OnComponentBeginOverlap.AddDynamic(this, &ATBlackhole::OnOverlap);
+	DestroySphereComp->SetCollisionResponseToAllChannels(ECR_Overlap);
+	DestroySphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	
 	RadialForceComp = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
 	RadialForceComp->SetupAttachment(SphereComp);
+	
+	RadialForceComp->Radius = 800.0f;
+	RadialForceComp->ForceStrength = -3000000.0f;
+	RadialForceComp->Falloff = RIF_Linear;
+	RadialForceComp->AddCollisionChannelToAffect(ECC_PhysicsBody);
+	RadialForceComp->RemoveObjectTypeToAffect(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+	RadialForceComp->SetAutoActivate(true);
+	RadialForceComp->bIgnoreOwningActor = true;
 	
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
 	
@@ -42,34 +55,14 @@ void ATBlackhole::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
-	
-	RadialForceComp->Radius = 800.0f;
-	RadialForceComp->ForceStrength = -3000000.0f;
-	RadialForceComp->Falloff = RIF_Linear;
-	RadialForceComp->AddCollisionChannelToAffect(ECC_PhysicsBody);
-	RadialForceComp->RemoveObjectTypeToAffect(UEngineTypes::ConvertToObjectType(ECC_Pawn));
-	RadialForceComp->SetAutoActivate(true);
-	RadialForceComp->bIgnoreOwningActor = true;
-	
-	DestroySphereComp->OnComponentBeginOverlap.AddDynamic(this, &ATBlackhole::OnOverlap);
-	DestroySphereComp->SetCollisionResponseToAllChannels(ECR_Overlap);
-	DestroySphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	
 	GetWorldTimerManager().SetTimer(Handler_Destroy, this, &ATBlackhole::DestroyTimer, 5.0f);
 }
 
 void ATBlackhole::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Error, TEXT("1"));
-	if (!OtherActor->IsA(APawn::StaticClass()))
+	if (!OtherActor->IsA(APawn::StaticClass()) && OtherComp->IsSimulatingPhysics())
 	{
-		UE_LOG(LogTemp, Error, TEXT("2"));
-		if (OtherComp->IsSimulatingPhysics())
-		{
-			UE_LOG(LogTemp, Error, TEXT("3"));
-			OtherActor->Destroy();
-		}
+		OtherActor->Destroy();
 	}
 }
 
